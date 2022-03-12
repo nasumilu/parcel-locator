@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>My First Parcel App</title>
+    <link rel="stylesheet" href="./style/style.scss" />
+    <script type="module" src="./js/app.ts"></script>
+  </head>
+  <body>
+    <form data-controller="parcel geocoder">
+        <div class="container">
+            <div class="row" style="height: 700px;">
+              <div id="map" class="w-100 h-100" data-controller="map"></div>
+            </div>
+       
+            <div class="row justify-content-md-center pt-3">
+              <div class="col-sm-8">
+                  <div class="form-floating">
+                      <input type="text" class="form-control" id="address" data-geocoder-target="address" placeholder="123 N. Main St, Gainesville, FL" value="">
+                      <label for="address">Street Address</label>
+                  </div>
+              </div>
+              <div class="col-sm-4 d-flex">
+                  <button class="btn btn-secondary pr" data-action="geocoder#locate">Locate</button>
+                  <div class="spinner-border text-secondary d-none" data-geocoder-target="spinner" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+              </div>
+          </div>
+    </form>
+  </body>
+</html>
