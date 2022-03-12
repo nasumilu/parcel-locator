@@ -1,5 +1,5 @@
 {
-  "name": "gis",
+  "name": "nasumilu/parcel-locator",
   "version": "1.0.0",
   "description": "Quick GIS webapp local to Alachua County, FL",
   "source": "src/index.html",
