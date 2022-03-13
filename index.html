@@ -4,13 +4,13 @@
     <meta charset="utf-8"/>
     <title>Geocoder/Parcle Locator</title>
     <link rel="stylesheet" href="./style/style.scss" />
-    <script type="module" src="./js/app.ts"></script>
+    <script type="module" src="./src/app.ts"></script>
   </head>
   <body>
     <form data-controller="parcel geocoder">
         <div class="container">
-            <div class="row" style="height: 700px;">
-              <div id="map" class="w-100 h-100" data-controller="map"></div>
+            <div class="row" style="height: 700px;" data-controller="map">
+              <div id="map" class="w-100 h-100" data-map-target="canvas"></div>
             </div>
        
             <div class="row justify-content-md-center pt-3">

@@ -5,6 +5,8 @@ import VectorSource from "ol/source/Vector";
 import { ADDRESS_STYLE } from "./feature_style";
 import { Point } from "ol/geom";
 import { Coordinate } from "ol/coordinate";
+import { AddressCandidate, AddressCanidateResults } from "./services_types";
+import { Extent } from "ol/extent";
 
 
 const GEOCODER_URI: string = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates';
@@ -17,9 +19,9 @@ const GEOCODER_URI: string = 'https://geocode.arcgis.com/arcgis/rest/services/Wo
  */
 export default class extends Controller {
 
-    static targets: string[] = [ 'address', 'spinner' ];
-    private map: Map;
+    static targets: string[] = [ 'address', 'spinner', 'popover' ];
     private source: VectorSource;
+    private map: Map;
     private layer: VectorLayer<VectorSource>;
     readonly hasAddressTarget: boolean;
     readonly spinnerTarget: HTMLDivElement;
@@ -48,7 +50,10 @@ export default class extends Controller {
         this.dispatch('connected', { detail: this.source } );
 
         // listen for when the map controller is connected and add this controllers layer
-        this.element.addEventListener('map:connected', (evt) => (evt as CustomEvent<Map>).detail.addLayer(this.layer));
+        this.element.addEventListener('map:connected', (evt) => {
+            this.map = (evt as CustomEvent<Map>).detail;
+            this.map.addLayer(this.layer);
+        });
         
     }
 
@@ -69,31 +74,30 @@ export default class extends Controller {
     }
 
     // method which handles the submit event
-    locate(evt) {
+    locate(evt: Event) {
         evt.preventDefault(); // prevent the form from submitting (page refresh)
         this.source.clear();  // clear any existing address canidates from the map (new search)
-
+        this.spinnerTarget.classList.remove('d-none');
         // Fetch API (get new set of address canidates)
         fetch(this.url)
             // get the response from the server and unmarshal (deserialize) JSON 
-            .then(response => {
-                this.spinnerTarget.classList.remove('d-none');
-                return response.json();
-            })
+            .then((response: Response) => response.json())
             // add the address canidates to the map
-            .then(data => {
+            .then((data:  AddressCanidateResults) => {
+                console.log(data);
                 if(data.candidates.length === 0) {
                     throw `Unable to gecode address ${this.addressTarget.value}`;
                 }
-                let extent:Coordinate[] = [];
-                data.candidates.forEach(canidate => {
-                    let coordinate = [canidate.location.x, canidate.location.y];
+                data.candidates.forEach( (candidate: AddressCandidate) => {
+                    let coordinate: Coordinate = [candidate.location.x, candidate.location.y];
                     let feature = new Feature({geometry: new Point(coordinate)});
-                    extent.push(coordinate);
+                    feature.setProperties(Object.assign({name: 'address', popover: this } , candidate.attributes));
                     feature.setStyle(ADDRESS_STYLE);
                     this.source.addFeature(feature);
                 });
+                return this.source.getExtent();
             })
+            .then((extent: Extent) => this.map.getView().fit(extent))
             .catch(err => {
                 // handle error here.
             }).finally(() => this.spinnerTarget.classList.add('d-none'));

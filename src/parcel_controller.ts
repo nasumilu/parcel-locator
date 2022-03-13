@@ -5,8 +5,9 @@ import VectorLayer from "ol/layer/Vector";
 import { Feature, Map } from "ol";
 import GeoJSON from "ol/format/GeoJSON";
 import { parcelStyle } from "./feature_style";
-import { Point } from "ol/geom";
+import { Geometry, Point } from "ol/geom";
 import { toStringXY } from "ol/coordinate";
+import { AddressCandidateProperties } from "./services_types";
 
 const SERVICE_URI = 'https://services.arcgis.com/cNo3jpluyt69V8Ek/arcgis/rest/services/PublicParcel/FeatureServer/0/query';
 /**
@@ -33,11 +34,11 @@ export default class extends Controller {
 
         this.element.addEventListener('geocoder:connected', evt => {
             let addressVectorSource:VectorSource = (evt as CustomEvent<VectorSource>).detail;
-            addressVectorSource.on('clear', evt => this.source.clear());
+            addressVectorSource.on('clear', (evt: VectorSourceEvent<Geometry>) => this.source.clear());
             addressVectorSource.on('addfeature', this.intersect.bind(this));
         });
         
-        this.element.addEventListener('map:connected', evt => {
+        this.element.addEventListener('map:connected', (evt: Event) => {
             this.map = (evt as CustomEvent<Map>).detail;
             this.map.addLayer(this.layer)
         });
@@ -46,7 +47,7 @@ export default class extends Controller {
 
     private requestBody(feature: Feature): FormData {
         const geometry: Point = feature.getGeometry() as Point;
-        const body = new FormData();
+        const body: FormData = new FormData();
         body.append('geometry', `${toStringXY(geometry.getCoordinates())}`);
         body.append('geometryType', 'esriGeometryPoint');
         body.append('inSR', '3857');
@@ -64,13 +65,18 @@ export default class extends Controller {
         this.map.getView().fit(this.source.getExtent());
     }
 
-    async intersect(evt: VectorSourceEvent) {     
-        const response = await fetch(SERVICE_URI, {
-            method: 'POST',
-            body: this.requestBody(evt.feature)
-        });
-        const data = await response.json();
-        this.source.addFeatures(this.reader.readFeatures(data));
+    async intersect(evt: VectorSourceEvent<Geometry>) {    
+        const properties: AddressCandidateProperties = evt.feature.getProperties() as AddressCandidateProperties;
+        // only if the feature's subregion is Alachua County
+        if(properties.Subregion === 'Alachua County') {
+            const response = await fetch(SERVICE_URI, {
+                method: 'POST',
+                body: this.requestBody(evt.feature)
+            });
+            const data = await response.json();
+            this.source.addFeatures(this.reader.readFeatures(data));
+            this.source.forEachFeature((feature: Feature<Geometry>) => feature.setProperties({name: 'parcel'}));
+        }
     }
 
 }

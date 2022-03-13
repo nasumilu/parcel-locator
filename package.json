@@ -2,7 +2,7 @@
   "name": "@nasumilu/parcel-locator",
   "version": "1.0.0",
   "description": "Quick GIS webapp local to Alachua County, FL",
-  "source": "src/index.html",
+  "source": "index.html",
   "author": "Michael Lucas <nasumilu@gmail.com>",
   "license": "Apache-2.0",
   "private": true,
