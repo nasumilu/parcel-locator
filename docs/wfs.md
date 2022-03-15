@@ -11,3 +11,7 @@ spatial join to obtain any parcels which it intersects. The Alachua County Prope
 to perform this task. 
 
     This service is found at https://services.arcgis.com/cNo3jpluyt69V8Ek/arcgis/rest/services/PublicParcel/FeatureServer/0
+
+## Web Map Tile Service (WMTS)
+
+1. The base map or WMTS is provided by OpenStreetMap tile server. For more information see their web site at https://wiki.openstreetmap.org/wiki/Tile_servers and [Wiki](https://wiki.openstreetmap.org/wiki/Tile_servers)
