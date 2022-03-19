@@ -4,3 +4,11 @@
 body {
   background-color: #ccc;
 }
+
+#map {
+  margin-top: 3em;
+}
+
+#map, #map > div {
+  border-radius: 1em;; 
+}
